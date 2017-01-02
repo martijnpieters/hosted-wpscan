@@ -1,4 +1,8 @@
 <?php
+use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
@@ -18,18 +22,34 @@ $app->register(new Silex\Provider\TranslationServiceProvider(), array(
     'locale_fallbacks' => array('en'),
 ));
 
-$app->get('/', function() use ($app) {
-    $process = new Process('ls -lsa');
-    $process->run();
+$app->get('/', function(Request $request) use ($app) {
+	$form = $app['form.factory']->createBuilder(FormType::class)
+        ->add('url', UrlType::class, array(
+            'required' => true,
+            'attr' => array('placeholder' => 'URL starting with https://'),
+        ))
+        ->add('save', SubmitType::class, array('label' => 'Scan'))
+        ->getForm();
+	
+    $form->handleRequest($request);
 
-    // executes after the command finishes
-    if (!$process->isSuccessful()) {
-        throw new ProcessFailedException($process);
+    if ($form->isValid()) {
+        $data = $form->getData();
+
+        $process = new Process('docker run --rm wpscanteam/wpscan -u ' . $data['url']);
+        $process->run();
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+        $output = $process->getOutput();
     }
-
+	
 	return $app['twig']->render('index.twig', array(
-        'output' => $process->getOutput()
+        'form' => $form->createView(),
+        'url' => isset($data) ? $data['url'] : null,
+        'output' => isset($output) ? $output : null,
     ));
-});
+})
+->method('GET|POST');
 
 $app->run();
