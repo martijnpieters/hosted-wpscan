@@ -37,8 +37,11 @@ $app->get('/', function(Request $request) use ($app) {
         $data = $form->getData();
 
         $process = new Process('docker run --rm wpscanteam/wpscan -u ' . $data['url']);
-        $process->run();
-        if (!$process->isSuccessful()) {
+        $process->start();
+        $pid = $process->getPid();
+        $process->wait();
+
+        if (!$process->isSuccessful() && $process->getExitCode() !== 1) {
             throw new ProcessFailedException($process);
         }
         $output = $process->getOutput();
@@ -46,8 +49,9 @@ $app->get('/', function(Request $request) use ($app) {
 	
 	return $app['twig']->render('index.twig', array(
         'form' => $form->createView(),
-        'url' => isset($data) ? $data['url'] : null,
-        'output' => isset($output) ? $output : null,
+        'url' => $data['url'] ?? null,
+        'pid' => $pid ?? null,
+        'output' => $output ?? null,
     ));
 })
 ->method('GET|POST');
