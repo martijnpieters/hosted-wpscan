@@ -23,7 +23,7 @@ $app->register(new Silex\Provider\TranslationServiceProvider(), array(
 ));
 
 $app->get('/', function(Request $request) use ($app) {
-    $form = $app['form.factory']->createBuilder(FormType::class)
+    $form = $app['form.factory']->createNamedBuilder(null, FormType::class)
         ->add('url', UrlType::class, array(
             'required' => true,
             'attr' => array('placeholder' => 'URL starting with https://'),
@@ -32,10 +32,10 @@ $app->get('/', function(Request $request) use ($app) {
             'label' => 'Scan',
             'attr' => array('class' => 'btn-primary'),
         ))
+        ->setMethod('GET')
         ->getForm();
-    
-    $form->handleRequest($request);
 
+    $form->handleRequest($request);
     if ($form->isValid()) {
         $data = $form->getData();
 
@@ -62,7 +62,6 @@ $app->get('/', function(Request $request) use ($app) {
         'pid' => $pid ?? null,
         'output' => $output ?? null,
     ));
-})
-->method('GET|POST');
+});
 
 $app->run();
