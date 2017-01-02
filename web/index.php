@@ -28,7 +28,10 @@ $app->get('/', function(Request $request) use ($app) {
             'required' => true,
             'attr' => array('placeholder' => 'URL starting with https://'),
         ))
-        ->add('save', SubmitType::class, array('label' => 'Scan'))
+        ->add('submit', SubmitType::class, array(
+            'label' => 'Scan',
+            'attr' => array('class' => 'btn-primary'),
+        ))
         ->getForm();
     
     $form->handleRequest($request);
@@ -45,8 +48,8 @@ $app->get('/', function(Request $request) use ($app) {
         $output = $process->getOutput();
         $dictionary = array(
             '[31m' => '<span style="color:red">',
-            '[32m' => '<span style="color:green">',
-            '[33m' => '<span style="color:yellow">',
+            '[32m' => '<span style="color:limegreen">',
+            '[33m' => '<span style="color:orange">',
             '[34m' => '<span style="color:blue">',
             '[0m'   => '</span>' ,
         );

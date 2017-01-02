@@ -1,8 +1,30 @@
-<h1>WPScan SaaS</h1>
+{% form_theme form 'bootstrap_3_layout.html.twig' %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>WPScan SaaS</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container mt-1 mb-1">
+      <h1>WPScan SaaS</h1>
 
-{{ form(form) }}
+      {{ form_start(form) }}
+        <div class="input-group">
+          {{ form_widget(form['url']) }}
+          <div class="input-group-btn">
+            {{ form_widget(form['submit']) }}
+          </div>
+        </div>
+        {{ form_rest(form) }}
+      {{ form_end(form) }}
 
-{% if output %}
-  <h2>Results for <em>{{ url }}</em> (PID {{ pid }})</h2>
-  <pre>{{ output | raw }}</pre>
-{% endif %}
+      {% if output %}
+        <h2>Results for <em>{{ url }}</em> (PID {{ pid }})</h2>
+        <pre>{{ output | raw }}</pre>
+      {% endif %}
+    </div>
+  </body>
+</html>
