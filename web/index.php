@@ -23,14 +23,14 @@ $app->register(new Silex\Provider\TranslationServiceProvider(), array(
 ));
 
 $app->get('/', function(Request $request) use ($app) {
-	$form = $app['form.factory']->createBuilder(FormType::class)
+    $form = $app['form.factory']->createBuilder(FormType::class)
         ->add('url', UrlType::class, array(
             'required' => true,
             'attr' => array('placeholder' => 'URL starting with https://'),
         ))
         ->add('save', SubmitType::class, array('label' => 'Scan'))
         ->getForm();
-	
+    
     $form->handleRequest($request);
 
     if ($form->isValid()) {
@@ -40,14 +40,20 @@ $app->get('/', function(Request $request) use ($app) {
         $process->start();
         $pid = $process->getPid();
         $process->wait();
-
-        if (!$process->isSuccessful() && $process->getExitCode() !== 1) {
-            throw new ProcessFailedException($process);
-        }
+        
+        $errors = $process->getExitCode();
         $output = $process->getOutput();
+        $dictionary = array(
+            '[31m' => '<span style="color:red">',
+            '[32m' => '<span style="color:green">',
+            '[33m' => '<span style="color:yellow">',
+            '[34m' => '<span style="color:blue">',
+            '[0m'   => '</span>' ,
+        );
+        $output = str_replace(array_keys($dictionary), $dictionary, $output);
     }
-	
-	return $app['twig']->render('index.twig', array(
+    
+    return $app['twig']->render('index.twig', array(
         'form' => $form->createView(),
         'url' => $data['url'] ?? null,
         'pid' => $pid ?? null,
