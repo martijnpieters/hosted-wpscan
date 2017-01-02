@@ -22,8 +22,10 @@
       {{ form_end(form) }}
 
       {% if output %}
+      <div class="mt-1">
         <h2>Results for <em>{{ url }}</em> (PID {{ pid }})</h2>
-        <pre>{{ output | raw }}</pre>
+        <pre><code>{{ output | raw }}</code></pre>
+      </div>
       {% endif %}
     </div>
   </body>
