@@ -148,8 +148,20 @@
         url: "{{ url('scan') }}",
         data: formData
       })
-      .done(function(data) {
-        $('#results').html(data);
+      .done(function(json) {
+        var html = '<h2>Results for <code>' + json['url'] + '</code></h2><p>';
+        if (json['errors'] > 0) {
+          html += '<span class="text-danger">' + (json['errors'] == 1 ? '1 Error' : json['errors'] + ' Errors') + '</span>, ';
+        } else {
+          html += '<span class="text-success">No errors,</span> ';
+        }
+        if (json['warnings'] > 0) {
+          html += '<span class="text-warning">' + (json['warnings'] == 1 ? '1 warning' : json['warnings'] + ' warnings') + '</span>';
+        } else {
+          html += '<span class="text-success">no warnings</span>';
+        }
+        html += '</p><hr><pre><code>' + json['output'] + '</code></pre>';
+        $('#results').html(html);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
         $('#results').html(null);

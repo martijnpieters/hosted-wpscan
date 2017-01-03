@@ -2,6 +2,7 @@
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Process\Process;
@@ -58,14 +59,13 @@ $app->get('/scan', function(Request $request) use ($app) {
     $form->handleRequest($request);
     if ($form->isValid()) {
         $data = $form->getData();
+        $url = $data['url'];
 
-        $process = new Process('docker run --rm wpscanteam/wpscan -u ' . $data['url']);
+        $process = new Process('docker run --rm wpscanteam/wpscan -u ' . $url);
         $process->start();
         $pid = $process->getPid();
         $process->wait();
         
-        $errors = $process->getExitCode();
-        $output = $process->getOutput();
         $dictionary = array(
             '[31m' => '<span style="color:red">',
             '[32m' => '<span style="color:limegreen">',
@@ -73,9 +73,15 @@ $app->get('/scan', function(Request $request) use ($app) {
             '[34m' => '<span style="color:blue">',
             '[0m'   => '</span>' ,
         );
-        $output = str_replace(array_keys($dictionary), $dictionary, $output);
+        $wpscan = $process->getOutput();
+        $output = array(
+            'url' => $url,
+            'errors' => substr_count($wpscan, '[31m'),
+            'warnings' => substr_count($wpscan, '[33m'),
+            'output' => str_replace(array_keys($dictionary), $dictionary, $wpscan),
+        );
 
-        return new Response($output);
+        return new JsonResponse($output);
     } else {
         $app->abort(500, 'Given URL is not valid');
     }
