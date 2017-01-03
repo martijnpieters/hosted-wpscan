@@ -3,8 +3,10 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Validator\Constraints as Assert;
 
 require_once(__DIR__.'/../vendor/autoload.php');
 
@@ -22,11 +24,13 @@ $app->register(new Silex\Provider\TranslationServiceProvider(), array(
     'locale_fallbacks' => array('en'),
 ));
 
-$app->get('/', function(Request $request) use ($app) {
-    $form = $app['form.factory']->createNamedBuilder(null, FormType::class)
+function getUrlForm() {
+    global $app;
+    return $app['form.factory']->createNamedBuilder(null, FormType::class)
         ->add('url', UrlType::class, array(
+            'attr' => array('placeholder' => 'URL starting with http:// or https://'),
+            'constraints' => array(new Assert\Url()),
             'required' => true,
-            'attr' => array('placeholder' => 'URL starting with https://'),
         ))
         ->add('submit', SubmitType::class, array(
             'label' => 'Scan',
@@ -34,7 +38,23 @@ $app->get('/', function(Request $request) use ($app) {
         ))
         ->setMethod('GET')
         ->getForm();
+}
 
+$app->get('/', function(Request $request) use ($app) {
+    $form = getUrlForm();
+    $form->handleRequest($request);
+    if ($form->isValid()) {
+        $data = $form->getData();
+    }
+    
+    return $app['twig']->render('index.twig', array(
+        'form' => $form->createView(),
+        'url' => $data['url'] ?? null,
+    ));
+});
+
+$app->get('/scan', function(Request $request) use ($app) {
+    $form = getUrlForm();
     $form->handleRequest($request);
     if ($form->isValid()) {
         $data = $form->getData();
@@ -54,14 +74,12 @@ $app->get('/', function(Request $request) use ($app) {
             '[0m'   => '</span>' ,
         );
         $output = str_replace(array_keys($dictionary), $dictionary, $output);
+
+        return new Response($output);
+    } else {
+        $app->abort(500, 'Given URL is not valid');
     }
-    
-    return $app['twig']->render('index.twig', array(
-        'form' => $form->createView(),
-        'url' => $data['url'] ?? null,
-        'pid' => $pid ?? null,
-        'output' => $output ?? null,
-    ));
-});
+})
+->bind('scan');
 
 $app->run();

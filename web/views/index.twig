@@ -2,14 +2,97 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>WPScan SaaS</title>
+    <title>WPScan</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+    .help-block .list-unstyled {
+      color: red;
+      margin-top: .5rem;
+    }
+
+    .loading {
+      text-align: center;
+    }
+
+    .loading p {
+      margin-bottom: .5rem;
+    }
+
+    .sk-wave {
+      margin: 3rem auto 1rem;
+      width: 50px;
+      height: 40px;
+      text-align: center;
+    }
+    
+    .sk-wave .sk-rect {
+      background-color: #333;
+      height: 100%;
+      width: 6px;
+      display: inline-block;
+      -webkit-animation: sk-waveStretchDelay 1.2s infinite ease-in-out;
+      animation: sk-waveStretchDelay 1.2s infinite ease-in-out;
+    }
+    
+    .sk-wave .sk-rect1 {
+      -webkit-animation-delay: -1.2s;
+      animation-delay: -1.2s;
+    }
+    
+    .sk-wave .sk-rect2 {
+      -webkit-animation-delay: -1.1s;
+      animation-delay: -1.1s;
+    }
+    
+    .sk-wave .sk-rect3 {
+      -webkit-animation-delay: -1s;
+      animation-delay: -1s;
+    }
+    
+    .sk-wave .sk-rect4 {
+      -webkit-animation-delay: -0.9s;
+      animation-delay: -0.9s;
+    }
+    
+    .sk-wave .sk-rect5 {
+      -webkit-animation-delay: -0.8s;
+      animation-delay: -0.8s;
+    }
+    
+    @-webkit-keyframes sk-waveStretchDelay {
+      0%,
+      40%,
+      100% {
+        -webkit-transform: scaleY(0.4);
+        transform: scaleY(0.4);
+      }
+      20% {
+        -webkit-transform: scaleY(1);
+        transform: scaleY(1);
+      }
+    }
+    
+    @keyframes sk-waveStretchDelay {
+      0%,
+      40%,
+      100% {
+        -webkit-transform: scaleY(0.4);
+        transform: scaleY(0.4);
+      }
+      20% {
+        -webkit-transform: scaleY(1);
+        transform: scaleY(1);
+      }
+    }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/js/bootstrap.min.js" integrity="sha384-BLiI7JTZm+JWlgKa0M0kGRpJbF2J8q+qreVrKBC47e3K6BW78kGLrCkeRX6I9RoK" crossorigin="anonymous"></script>
   </head>
   <body>
     <div class="container mt-1 mb-1">
-      <h1>WPScan SaaS</h1>
+      <h1>Hosted WPScan</h1>
 
       {{ form_start(form) }}
         <div class="input-group">
@@ -18,15 +101,65 @@
             {{ form_widget(form['submit']) }}
           </div>
         </div>
+        {{ form_errors(form['url']) }}
         {{ form_rest(form) }}
       {{ form_end(form) }}
 
-      {% if output %}
-      <div class="mt-2">
-        <h2>Results for <em>{{ url }}</em></h2>
-        <pre><code>{{ output | raw }}</code></pre>
+      {% if url %}
+      <div class="mt-2" id="results">
+        <div class="loading">
+          <div class="sk-wave">
+            <div class="sk-rect sk-rect1"></div>
+            <div class="sk-rect sk-rect2"></div>
+            <div class="sk-rect sk-rect3"></div>
+            <div class="sk-rect sk-rect4"></div>
+            <div class="sk-rect sk-rect5"></div>
+          </div>
+          <p>Scanning...</p>
+          <p><small>This could take up to one minute</small></p>
+        </div>
+      </div>
+
+      <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <h4 class="modal-title" id="myModalLabel">Request failed</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
       </div>
       {% endif %}
     </div>
+
+    {% if url %}
+    <script>
+    $(function() {
+      $('form :input').prop('disabled', true);
+      $.ajax({
+        url: "{{ url('scan') }}",
+        data: $('form').serialize()
+      })
+      .done(function(data) {
+        $('#results').html(data);
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        $('#results').html(null);
+        $('#errorModal .modal-body').html('An error has occured: ' + errorThrown);
+        $('#errorModal').modal();
+      })
+      .always(function() {
+        $('form :input').prop('disabled', false);
+      });
+    });
+    </script>
+    {% endif %}
   </body>
 </html>
