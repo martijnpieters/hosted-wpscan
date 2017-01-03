@@ -142,10 +142,11 @@
     {% if url %}
     <script>
     $(function() {
+      var formData = $('form').serialize();
       $('form :input').prop('disabled', true);
       $.ajax({
         url: "{{ url('scan') }}",
-        data: $('form').serialize()
+        data: formData
       })
       .done(function(data) {
         $('#results').html(data);
