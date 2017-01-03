@@ -67,10 +67,10 @@ $app->get('/scan', function(Request $request) use ($app) {
         $process->wait();
         
         $dictionary = array(
-            '[31m' => '<span style="color:red">',
-            '[32m' => '<span style="color:limegreen">',
-            '[33m' => '<span style="color:orange">',
-            '[34m' => '<span style="color:blue">',
+            '[31m' => '<span class="text-danger">',
+            '[32m' => '<span class="text-success">',
+            '[33m' => '<span class="text-warning">',
+            '[34m' => '<span class="text-info">',
             '[0m'   => '</span>' ,
         );
         $wpscan = $process->getOutput();

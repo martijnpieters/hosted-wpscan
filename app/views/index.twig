@@ -8,7 +8,7 @@
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.5/css/bootstrap.min.css" rel="stylesheet">
     <style>
     .help-block .list-unstyled {
-      color: red;
+      color: #d9534f;
       margin-top: .5rem;
     }
 
@@ -149,18 +149,27 @@
         data: formData
       })
       .done(function(json) {
-        var html = '<h2>Results for <code>' + json['url'] + '</code></h2><p>';
+        var html = '<h2>Results for <code>' + json['url'] + '</code></h2>';
+        html += '<p>';
+        
+        // Errors summary
         if (json['errors'] > 0) {
-          html += '<span class="text-danger">' + (json['errors'] == 1 ? '1 Error' : json['errors'] + ' Errors') + '</span>, ';
+          html += '<span class="text-danger">' + (json['errors'] == 1 ? '1 Error' : json['errors'] + ' Errors') + ',</span> ';
         } else {
           html += '<span class="text-success">No errors,</span> ';
         }
+
+        // Warnings summary
         if (json['warnings'] > 0) {
           html += '<span class="text-warning">' + (json['warnings'] == 1 ? '1 warning' : json['warnings'] + ' warnings') + '</span>';
         } else {
-          html += '<span class="text-success">no warnings</span>';
+          html += '<span class="text-muted">no warnings</span>';
         }
-        html += '</p><hr><pre><code>' + json['output'] + '</code></pre>';
+
+        // Raw output
+        html += '</p><hr>';
+        html += '<pre><code>' + json['output'] + '</code></pre>';
+
         $('#results').html(html);
       })
       .fail(function(jqXHR, textStatus, errorThrown) {
