@@ -41,7 +41,7 @@ function getUrlForm() {
         ->getForm();
 }
 
-$app->get('/', function(Request $request) use ($app) {
+$app->get('/', function (Request $request) use ($app) {
     $form = getUrlForm();
     $form->handleRequest($request);
     if ($form->isValid()) {
@@ -54,17 +54,15 @@ $app->get('/', function(Request $request) use ($app) {
     ));
 });
 
-$app->get('/scan', function(Request $request) use ($app) {
+$app->get('/scan', function (Request $request) use ($app) {
     $form = getUrlForm();
     $form->handleRequest($request);
     if ($form->isValid()) {
         $data = $form->getData();
         $url = $data['url'];
 
-        $process = new Process('docker run --rm wpscanteam/wpscan -u ' . $url);
-        $process->start();
-        $pid = $process->getPid();
-        $process->wait();
+        $process = new Process('docker run --rm wpscanteam/wpscan -u ' . $url . ' --update');
+        $process->run();
         
         $dictionary = array(
             '[31m' => '<span class="text-danger">',
@@ -73,15 +71,13 @@ $app->get('/scan', function(Request $request) use ($app) {
             '[34m' => '<span class="text-info">',
             '[0m'   => '</span>' ,
         );
-        $wpscan = $process->getOutput();
-        $output = array(
+
+        return new JsonResponse(array(
             'url' => $url,
             'errors' => substr_count($wpscan, '[31m'),
             'warnings' => substr_count($wpscan, '[33m'),
-            'output' => str_replace(array_keys($dictionary), $dictionary, $wpscan),
-        );
-
-        return new JsonResponse($output);
+            'output' => str_replace(array_keys($dictionary), $dictionary, $process->getOutput()),
+        ));
     } else {
         $app->abort(500, 'Given URL is not valid');
     }
