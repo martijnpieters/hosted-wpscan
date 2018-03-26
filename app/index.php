@@ -73,7 +73,7 @@ $app->get('/scan', function (Request $request) use ($app) {
         $data = $form->getData();
         $url = $data['url'];
 
-        $process = new Process(vsprintf(PROCESS_COMMAND_DOCKER_WPSCAN, [$url]));
+        $process = new Process(vsprintf(PROCESS_COMMAND_DOCKER_WPSCAN, [$url]), null, null, null, 300);
         $process->run();
 
         $wpscanOutput = $process->getOutput();
