@@ -115,36 +115,36 @@
       {{ form_end(form) }}
 
       {% if url %}
-      <div class="mt-2" id="results">
-        <div class="loading">
-          <div class="sk-wave">
-            <div class="sk-rect sk-rect1"></div>
-            <div class="sk-rect sk-rect2"></div>
-            <div class="sk-rect sk-rect3"></div>
-            <div class="sk-rect sk-rect4"></div>
-            <div class="sk-rect sk-rect5"></div>
+        <div class="mt-2" id="results">
+          <div class="loading">
+            <div class="sk-wave">
+              <div class="sk-rect sk-rect1"></div>
+              <div class="sk-rect sk-rect2"></div>
+              <div class="sk-rect sk-rect3"></div>
+              <div class="sk-rect sk-rect4"></div>
+              <div class="sk-rect sk-rect5"></div>
+            </div>
+            <p>Scanning...</p>
+            <p><small>This could take up to one minute</small></p>
           </div>
-          <p>Scanning...</p>
-          <p><small>This could take up to one minute</small></p>
         </div>
-      </div>
 
-      <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-              <h4 class="modal-title" id="myModalLabel">Request failed</h4>
-            </div>
-            <div class="modal-body"></div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Request failed</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
       {% endif %}
     </div>
 
